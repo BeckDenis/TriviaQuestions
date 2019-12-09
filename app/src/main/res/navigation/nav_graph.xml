@@ -7,16 +7,50 @@
 
     <fragment
         android:id="@+id/titleFragment"
-        android:name="com.example.android.triviaquestions.TitleFragment"
-        android:label="fragment_title"
-        tools:layout="@layout/fragment_title" >
+        android:name="com.example.android.triviaquestions.title.TitleFragment"
+        android:label="Trivia Questions"
+        tools:layout="@layout/fragment_title">
         <action
             android:id="@+id/action_titleFragment_to_gameFragment"
             app:destination="@id/gameFragment" />
     </fragment>
     <fragment
         android:id="@+id/gameFragment"
-        android:name="com.example.android.triviaquestions.GameFragment"
-        android:label="fragment_game"
-        tools:layout="@layout/fragment_game" />
+        android:name="com.example.android.triviaquestions.game.GameFragment"
+        android:label="Trivia Questions"
+        tools:layout="@layout/fragment_game">
+        <action
+            android:id="@+id/action_gameFragment_to_gameWonFragment"
+            app:destination="@id/gameWonFragment"
+            app:popUpTo="@+id/gameFragment"
+            app:popUpToInclusive="true" />
+        <action
+            android:id="@+id/action_gameFragment_self"
+            app:destination="@id/gameFragment"
+            app:popUpTo="@+id/gameFragment"
+            app:popUpToInclusive="true" />
+        <argument
+            android:name="levelState"
+            app:argType="com.example.android.triviaquestions.state.LevelState" />
+    </fragment>
+    <fragment
+        android:id="@+id/gameWonFragment"
+        android:name="com.example.android.triviaquestions.game.GameWonFragment"
+        android:label="You Won!"
+        tools:layout="@layout/fragment_game_won">
+        <argument
+            android:name="numQuestions"
+            app:argType="integer" />
+        <argument
+            android:name="numCorrect"
+            app:argType="integer" />
+        <action
+            android:id="@+id/action_gameWonFragment_to_gameFragment"
+            app:destination="@id/gameFragment"
+            app:popUpTo="@+id/gameWonFragment"
+            app:popUpToInclusive="true" />
+        <argument
+            android:name="levelState"
+            app:argType="com.example.android.triviaquestions.state.LevelState" />
+    </fragment>
 </navigation>

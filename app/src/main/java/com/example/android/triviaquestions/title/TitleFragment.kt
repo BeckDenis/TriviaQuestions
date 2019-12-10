@@ -33,13 +33,11 @@ class TitleFragment : Fragment(), AdapterView.OnItemSelectedListener {
             R.array.planets_array,
             R.layout.spinner_item
         ).also { adapter ->
-            // Specify the layout to use when the list of choices appears
             adapter.setDropDownViewResource(R.layout.spinner_item)
-            // Apply the adapter to the spinner
-            planets_spinner.adapter = adapter
+            level_spinner.adapter = adapter
         }
 
-        planets_spinner.onItemSelectedListener = this
+        level_spinner.onItemSelectedListener = this
 
         start_button.setOnClickListener {
             findNavController().navigate(
@@ -51,7 +49,7 @@ class TitleFragment : Fragment(), AdapterView.OnItemSelectedListener {
     }
 
     override fun onNothingSelected(parent: AdapterView<*>?) {
-
+        levelState = LevelState.EASY
     }
 
     override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {

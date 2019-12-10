@@ -10,6 +10,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.navigation.findNavController
+import androidx.navigation.fragment.findNavController
 import com.example.android.checkbuttontest.Question
 import com.example.android.checkbuttontest.questions
 import com.example.android.triviaquestions.*
@@ -20,8 +21,8 @@ import kotlin.math.min
 
 class GameFragment : Fragment() {
 
-    lateinit var currentQuestion: Question
-    lateinit var answers: MutableList<String>
+    private lateinit var currentQuestion: Question
+    private lateinit var answers: MutableList<String>
     private var questionIndex = 0
     private var numQuestions = 0
     private var gameState = GameState.ACTIVE
@@ -30,87 +31,92 @@ class GameFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-
         return inflater.inflate(R.layout.fragment_game, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val args =
-            GameFragmentArgs.fromBundle(
-                arguments!!
-            )
-        val levelState = args.levelState
-        val numberOfQuestions = when (levelState) {
-            LevelState.EASY -> 3
-            LevelState.MEDIUM -> 5
-            LevelState.HARD -> 9
-        }
+        val levelState = GameFragmentArgs.fromBundle(arguments!!).levelState
+        val numberOfQuestions = checkLevelState(levelState)
         numQuestions = min((questions.size + 1) / 2, numberOfQuestions)
 
         randomizeQuestions()
 
-        submitButton.setOnClickListener {
-            when (gameState) {
-                GameState.ACTIVE -> {
-                    val checkedId = questionRadioGroup.checkedRadioButtonId
-                    if (-1 != checkedId) {
-                        var answerIndex = 0
-                        when (checkedId) {
-                            R.id.secondAnswerRadioButton -> answerIndex = 1
-                            R.id.thirdAnswerRadioButton -> answerIndex = 2
-                            R.id.fourthAnswerRadioButton -> answerIndex = 3
-                        }
-                        if (answers[answerIndex] == currentQuestion.answers[0]) {
-                            questionIndex++
+        submitButton.setOnClickListener { checkAnswer(view, levelState) }
+    }
 
-                            if (questionIndex < numQuestions) {
-                                Toast.makeText(context, "Right! It is true.", Toast.LENGTH_LONG).show()
-                                setQuestion()
-                            } else {
-                                view.findNavController()
-                                    .navigate(
-                                        GameFragmentDirections.actionGameFragmentToGameWonFragment(
-                                            numQuestions,
-                                            questionIndex,
-                                            levelState
-                                        )
-                                    )
-                            }
-                        } else {
-                            Toast.makeText(context, "Wrong! It is false.", Toast.LENGTH_LONG).show()
-                            gameState =
-                                GameState.FINISHED
-                            val color = ContextCompat.getColor(context!!,
-                                R.color.colorAccent
-                            )
-                            when (currentQuestion.answers[0]) {
-                                firstAnswerRadioButton.text -> firstAnswerRadioButton.setBackgroundColor(color)
-                                secondAnswerRadioButton.text -> secondAnswerRadioButton.setBackgroundColor(color)
-                                thirdAnswerRadioButton.text -> thirdAnswerRadioButton.setBackgroundColor(color)
-                                else -> fourthAnswerRadioButton.setBackgroundColor(color)
-                            }
-                            submitButton.text = getString(R.string.restart_button)
-                        }
+    private fun checkAnswer(view: View, levelState: LevelState) {
+        when (gameState) {
+            GameState.ACTIVE -> {
+                val checkedId = questionRadioGroup.checkedRadioButtonId
+                if (-1 != checkedId) {
+                    val answerIndex = checkSelectedRadioButton(checkedId)
+                    if (answers[answerIndex] == currentQuestion.answers[0]) {
+                        questionIndex++
+                        checkEndOfTest(view, levelState)
+                    } else {
+                        wrongAnswer()
                     }
                 }
-                GameState.FINISHED -> {
-                    view.findNavController().navigate(
-                        GameFragmentDirections.actionGameFragmentSelf(
-                            levelState
-                        )
-                    )
-                }
             }
-
+            GameState.FINISHED -> refreshGameFragment(levelState)
         }
     }
 
-    private fun randomizeQuestions() {
-        questions.shuffle()
-        questionIndex = 0
-        setQuestion()
+    private fun checkSelectedRadioButton(checkedId: Int): Int {
+        return when (checkedId) {
+            R.id.firstAnswerRadioButton -> 0
+            R.id.secondAnswerRadioButton -> 1
+            R.id.thirdAnswerRadioButton -> 2
+            else -> 3
+        }
+    }
+
+    private fun checkEndOfTest(view: View, levelState: LevelState) {
+        if (questionIndex < numQuestions) {
+            setQuestion()
+        } else {
+            goToWonFragment(view, levelState)
+        }
+    }
+
+    private fun wrongAnswer() {
+        Toast.makeText(context, getString(R.string.wrong_answer), Toast.LENGTH_LONG).show()
+        gameState = GameState.FINISHED
+        highlightCorrectAnswer()
+        submitButton.text = getString(R.string.restart_button)
+    }
+
+    private fun highlightCorrectAnswer() {
+        val color = ContextCompat.getColor(context!!, R.color.colorAccent)
+        when (currentQuestion.answers[0]) {
+            firstAnswerRadioButton.text -> firstAnswerRadioButton.setBackgroundColor(color)
+            secondAnswerRadioButton.text -> secondAnswerRadioButton.setBackgroundColor(color)
+            thirdAnswerRadioButton.text -> thirdAnswerRadioButton.setBackgroundColor(color)
+            else -> fourthAnswerRadioButton.setBackgroundColor(color)
+        }
+    }
+
+    private fun refreshGameFragment(levelState: LevelState) =
+        findNavController().navigate(GameFragmentDirections.actionGameFragmentSelf(levelState))
+
+    private fun goToWonFragment(view: View, levelState: LevelState) {
+        view.findNavController().navigate(
+            GameFragmentDirections.actionGameFragmentToGameWonFragment(
+                numQuestions,
+                questionIndex,
+                levelState
+            )
+        )
+    }
+
+    private fun checkLevelState(levelState: LevelState): Int {
+        return when (levelState) {
+            LevelState.EASY -> 3
+            LevelState.MEDIUM -> 5
+            LevelState.HARD -> 9
+        }
     }
 
     private fun setQuestion() {
@@ -118,7 +124,14 @@ class GameFragment : Fragment() {
         answers = currentQuestion.answers.toMutableList()
         answers.shuffle()
         updateView()
-        (activity as AppCompatActivity).supportActionBar?.title = getString(R.string.title_android_trivia_question, questionIndex + 1, numQuestions)
+        (activity as AppCompatActivity).supportActionBar?.title =
+            getString(R.string.title_android_trivia_question, questionIndex + 1, numQuestions)
+    }
+
+    private fun randomizeQuestions() {
+        questions.shuffle()
+        questionIndex = 0
+        setQuestion()
     }
 
     private fun updateView() {

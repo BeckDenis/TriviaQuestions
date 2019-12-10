@@ -10,9 +10,6 @@ import androidx.navigation.fragment.findNavController
 import com.example.android.triviaquestions.R
 import kotlinx.android.synthetic.main.fragment_game_won.*
 
-/**
- * A simple [Fragment] subclass.
- */
 class GameWonFragment : Fragment() {
 
     private lateinit var args: GameWonFragmentArgs
@@ -22,7 +19,6 @@ class GameWonFragment : Fragment() {
         savedInstanceState: Bundle?
     ): View? {
         args = GameWonFragmentArgs.fromBundle(arguments!!)
-
         return inflater.inflate(R.layout.fragment_game_won, container, false)
     }
 

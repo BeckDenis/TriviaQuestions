@@ -30,7 +30,7 @@ class TitleFragment : Fragment(), AdapterView.OnItemSelectedListener {
         super.onViewCreated(view, savedInstanceState)
 
         ArrayAdapter.createFromResource(context!!,
-            R.array.planets_array,
+            R.array.level_array,
             R.layout.spinner_item
         ).also { adapter ->
             adapter.setDropDownViewResource(R.layout.spinner_item)

@@ -48,6 +48,7 @@
         <com.google.android.material.chip.Chip
             android:id="@+id/chip_easy"
             style="@style/Chip"
+            android:background="#00523838"
             android:text="@string/level_easy"
             app:checkedIconEnabled="false"
             app:chipBackgroundColor="@color/chip_bg_states" />

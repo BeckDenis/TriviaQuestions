@@ -10,9 +10,7 @@
     <string name="level_text">choose difficulty level</string>
     <string name="restart_button">Restart</string>
     <string name="wrong_answer">Wrong! It is false.</string>
-    <string-array name="level_array">
-        <item>Easy</item>
-        <item>Medium</item>
-        <item>Hard</item>
-    </string-array>
+    <string name="level_easy">Easy</string>
+    <string name="level_medium">Medium</string>
+    <string name="level_hard">Hard</string>
 </resources>

@@ -24,7 +24,7 @@ class GameFragment : Fragment() {
     private lateinit var currentQuestion: Question
     private lateinit var answers: MutableList<String>
     private var questionIndex = 0
-    private var numQuestions = 0
+    private var numberOfQuestions = 0
     private var gameState = GameState.ACTIVE
 
     override fun onCreateView(
@@ -38,8 +38,7 @@ class GameFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         val levelState = GameFragmentArgs.fromBundle(arguments!!).levelState
-        val numberOfQuestions = checkLevelState(levelState)
-        numQuestions = min((questions.size + 1) / 2, numberOfQuestions)
+        numberOfQuestions = checkLevelState(levelState)
 
         randomizeQuestions()
 
@@ -74,7 +73,7 @@ class GameFragment : Fragment() {
     }
 
     private fun checkEndOfTest(view: View, levelState: LevelState) {
-        if (questionIndex < numQuestions) {
+        if (questionIndex < numberOfQuestions) {
             setQuestion()
         } else {
             goToWonFragment(view, levelState)
@@ -104,7 +103,7 @@ class GameFragment : Fragment() {
     private fun goToWonFragment(view: View, levelState: LevelState) {
         view.findNavController().navigate(
             GameFragmentDirections.actionGameFragmentToGameWonFragment(
-                numQuestions,
+                numberOfQuestions,
                 questionIndex,
                 levelState
             )
@@ -125,7 +124,7 @@ class GameFragment : Fragment() {
         answers.shuffle()
         updateView()
         (activity as AppCompatActivity).supportActionBar?.title =
-            getString(R.string.title_android_trivia_question, questionIndex + 1, numQuestions)
+            getString(R.string.title_android_trivia_question, questionIndex + 1, numberOfQuestions)
     }
 
     private fun randomizeQuestions() {

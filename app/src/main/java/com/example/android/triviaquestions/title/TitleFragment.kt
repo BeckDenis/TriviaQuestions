@@ -10,13 +10,14 @@ import android.widget.*
 import androidx.navigation.fragment.findNavController
 import com.example.android.triviaquestions.R
 import com.example.android.triviaquestions.state.LevelState
+import com.google.android.material.chip.Chip
 import kotlinx.android.synthetic.main.fragment_title.*
 
 /**
  * A simple [Fragment] subclass.
  */
-class TitleFragment : Fragment(), AdapterView.OnItemSelectedListener {
-    private lateinit var levelState: LevelState
+class TitleFragment : Fragment() {
+    private var levelState = LevelState.EASY
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -29,15 +30,13 @@ class TitleFragment : Fragment(), AdapterView.OnItemSelectedListener {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        ArrayAdapter.createFromResource(context!!,
-            R.array.level_array,
-            R.layout.spinner_item
-        ).also { adapter ->
-            adapter.setDropDownViewResource(R.layout.spinner_item)
-            level_spinner.adapter = adapter
+        chip_level.setOnCheckedChangeListener { _, checkedId: Int ->
+            when(checkedId) {
+                chip_easy.id -> levelState = LevelState.EASY
+                chip_medium.id -> levelState = LevelState.MEDIUM
+                chip_hard.id -> levelState = LevelState.HARD
+            }
         }
-
-        level_spinner.onItemSelectedListener = this
 
         start_button.setOnClickListener {
             findNavController().navigate(
@@ -45,18 +44,6 @@ class TitleFragment : Fragment(), AdapterView.OnItemSelectedListener {
                     levelState
                 )
             )
-        }
-    }
-
-    override fun onNothingSelected(parent: AdapterView<*>?) {
-        levelState = LevelState.EASY
-    }
-
-    override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
-        when(position) {
-            0 -> levelState = LevelState.EASY
-            1 -> levelState = LevelState.MEDIUM
-            2 -> levelState = LevelState.HARD
         }
     }
 }
